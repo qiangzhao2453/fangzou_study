@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>火山方舟 Managed Agents — 新手入门互动教程</title>
+<style>
+  /* ===== Design Tokens ===== */
+  :root {
+    /* Background */
+    --bg:           #faf8f5;
+    --surface:      #ffffff;
+    --border:       #e8e3da;
+    --border-soft:  #f0ece4;
+
+    /* Text */
+    --text:         #1f1c17;
+    --text-muted:   #6a635a;
+    --text-soft:    #9d9589;
+
+    /* Accent — refined teal-green */
+    --accent:       #3b7a6b;
+    --accent-light: #edf6f2;
+    --accent-hover: #2f6356;
+    --on-accent:    #ffffff;
+
+    /* Semantic: tip */
+    --tip-bg:       #edf6f2;
+    --tip-border:   #b0d5c5;
+    --tip-text:     #2d5e4e;
+    --tip-badge-bg: #c6e4d7;
+    --tip-badge-fg: #235545;
+
+    /* Semantic: warning */
+    --warn-bg:      #fef8ed;
+    --warn-border:  #e8d399;
+    --warn-text:    #7d6318;
+    --warn-badge-bg:#f3dd9e;
+    --warn-badge-fg:#6b4f10;
+
+    /* Semantic: code & dark surfaces */
+    --code-bg:      #f3f0ea;
+    --code-fg:      #3b7a6b;
+    --pre-bg:       #26231e;
+    --pre-fg:       #e8e3da;
+
+    /* Spacing (8px baseline) */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+
+    /* Radii */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+
+    /* Shadows — subtle layered depth */
+    --shadow-card: 0 1px 2px rgba(0,0,0,0.03), 0 2px 6px rgba(0,0,0,0.04);
+    --shadow-card-hover: 0 1px 3px rgba(0,0,0,0.04), 0 4px 14px rgba(0,0,0,0.06);
+
+    /* Layout */
+    --sidebar-w: 260px;
+    --content-max: 820px;
+  }
+
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--space-8);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+    font-size: clamp(0.938rem, 1.5vw, 1rem);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: var(--sidebar-w);
+    background: #f7f4ef;
+    border-right: 1px solid var(--border);
+    padding: var(--space-8) var(--space-5);
+    overflow-y: auto;
+    z-index: 10;
+    display: flex; flex-direction: column;
+  }
+
+  .sidebar-logo {
+    font-size: 1.125rem; font-weight: 750; color: var(--text);
+    margin-bottom: var(--space-1); letter-spacing: -0.025em;
+  }
+  .sidebar-subtitle {
+    font-size: 0.75rem; color: var(--text-soft);
+    margin-bottom: var(--space-8); line-height: 1.5;
+  }
+
+  .sidebar-nav { list-style: none; flex: 1; }
+  .sidebar-nav li { margin-bottom: 1px; }
+
+  .sidebar-nav a {
+    display: block; padding: 7px 12px;
+    font-size: 0.8125rem; color: var(--text-muted);
+    text-decoration: none; border-radius: var(--radius-sm);
+    transition: background 0.15s ease, color 0.15s ease;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sidebar-nav a:hover { background: #ede8df; color: var(--text); }
+  .sidebar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 650; }
+
+  .sidebar-section {
+    font-size: 0.6875rem; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-soft);
+    padding: var(--space-5) 12px var(--space-2); font-weight: 650;
+  }
+  .sidebar-section:first-of-type { padding-top: 0; }
+
+  .sidebar-footer {
+    margin-top: auto; padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
+    font-size: 0.71875rem; color: var(--text-soft);
+    line-height: 1.55;
+  }
+
+  /* ===== Main Content ===== */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1; max-width: var(--content-max);
+    padding: clamp(2rem, 5vw, var(--space-12)) clamp(1.5rem, 4vw, 3.5rem) var(--space-16);
+  }
+
+  /* ===== Typography — 1.25 modular scale ===== */
+  h1 {
+    font-size: clamp(1.625rem, 3.5vw, 2.25rem);
+    font-weight: 800; letter-spacing: -0.035em;
+    color: var(--text); margin-bottom: var(--space-2);
+    line-height: 1.2;
+  }
+  .subhead {
+    font-size: clamp(0.938rem, 1.8vw, 1.063rem);
+    color: var(--text-muted); margin-bottom: var(--space-10);
+    line-height: 1.65; max-width: 62ch;
+  }
+
+  h2 {
+    font-size: clamp(1.125rem, 2.2vw, 1.35rem);
+    font-weight: 750; letter-spacing: -0.02em;
+    color: var(--text); margin: var(--space-12) 0 var(--space-3);
+    padding-top: var(--space-2); line-height: 1.35;
+  }
+
+  h3 {
+    font-size: 1rem; font-weight: 700; color: var(--text);
+    margin: var(--space-8) 0 var(--space-3);
+    line-height: 1.4;
+  }
+
+  .section-desc {
+    font-size: 0.9375rem; color: var(--text-muted);
+    margin-bottom: var(--space-6); line-height: 1.7; max-width: 60ch;
+  }
+
+  /* ===== Concept Cards ===== */
+  .concept-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: var(--space-6) var(--space-6);
+    margin-bottom: var(--space-4); box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s ease;
+  }
+  .concept-card:hover { box-shadow: var(--shadow-card-hover); }
+  .concept-card h3 { margin-top: 0; display: flex; align-items: center; gap: 12px; }
+  .concept-card h3 .icon {
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.125rem; background: var(--accent-light);
+    flex-shrink: 0;
+  }
+  .concept-card > p { font-size: 0.9375rem; color: var(--text); margin-bottom: var(--space-3); line-height: 1.75; max-width: 62ch; }
+
+  /* ===== Highlight Boxes ===== */
+  .highlight {
+    padding: 14px 18px; border-radius: var(--radius-sm);
+    margin: var(--space-3) 0 var(--space-4);
+    font-size: 0.875rem; line-height: 1.7;
+    border-left: 3px solid transparent;
+  }
+  .highlight strong { font-weight: 700; }
+  .highlight-tip {
+    background: var(--tip-bg); color: var(--tip-text);
+    border-left-color: var(--tip-border);
+  }
+  .highlight-warn {
+    background: var(--warn-bg); color: var(--warn-text);
+    border-left-color: var(--warn-border);
+  }
+  .highlight-label {
+    display: inline-block; font-size: 0.6875rem; font-weight: 750;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-right: 8px; padding: 2px 8px; border-radius: 4px;
+    vertical-align: middle; position: relative; top: -1px;
+  }
+  .highlight-tip .highlight-label { background: var(--tip-badge-bg); color: var(--tip-badge-fg); }
+  .highlight-warn .highlight-label { background: var(--warn-badge-bg); color: var(--warn-badge-fg); }
+
+  /* ===== Step Accordion ===== */
+  .step-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); margin-bottom: var(--space-3);
+    box-shadow: var(--shadow-card); overflow: hidden;
+    transition: box-shadow 0.2s ease;
+  }
+  .step-card:hover { box-shadow: var(--shadow-card-hover); }
+  .step-header {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 20px 22px; cursor: pointer;
+    user-select: none; transition: background 0.12s ease;
+  }
+  .step-header:hover { background: #f9f7f3; }
+  .step-number {
+    flex-shrink: 0; width: 38px; height: 38px;
+    background: var(--accent-light); color: var(--accent);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.9375rem;
+  }
+  .step-title-area { flex: 1; }
+  .step-title { font-weight: 700; font-size: 1rem; color: var(--text); }
+  .step-subtitle { font-size: 0.8125rem; color: var(--text-muted); margin-top: 2px; }
+  .step-arrow {
+    flex-shrink: 0; width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-soft); transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+  }
+  .step-card.open .step-arrow { transform: rotate(180deg); }
+  .step-card.open .step-header { border-bottom: 1px solid var(--border-soft); }
+
+  .step-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.45s cubic-bezier(0.16,1,0.3,1), padding 0.35s ease;
+  }
+  .step-card.open .step-body {
+    max-height: 3000px; padding: var(--space-4) 22px 24px;
+  }
+  .step-body p { font-size: 0.9375rem; color: var(--text); line-height: 1.75; margin-bottom: var(--space-3); }
+  .step-body code {
+    background: var(--code-bg); padding: 2px 7px; border-radius: 4px;
+    font-size: 0.875em; color: var(--code-fg);
+    font-family: "SF Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+  }
+  .step-body pre {
+    background: var(--pre-bg); color: var(--pre-fg); padding: 16px 20px;
+    border-radius: var(--radius-sm); font-size: 0.8125rem; line-height: 1.65;
+    overflow-x: auto; margin-bottom: var(--space-4);
+    font-family: "SF Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+  }
+  .step-body pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+  /* ===== FAQ Accordion ===== */
+  .faq-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); margin-bottom: var(--space-2);
+    box-shadow: var(--shadow-card); overflow: hidden;
+    transition: box-shadow 0.2s ease;
+  }
+  .faq-item:hover { box-shadow: var(--shadow-card-hover); }
+  .faq-item.open { border-color: var(--accent-light); }
+
+  .faq-question {
+    display: flex; align-items: center; gap: 12px;
+    padding: 18px 20px; cursor: pointer; user-select: none;
+    transition: background 0.12s ease; width: 100%; border: none; background: none;
+    font: inherit; color: inherit; text-align: left;
+  }
+  .faq-question:hover { background: #f9f7f3; }
+  .faq-qnum {
+    flex-shrink: 0; font-size: 0.75rem; font-weight: 750;
+    color: var(--accent); width: 28px; text-align: center;
+  }
+  .faq-qtext { flex: 1; font-weight: 650; font-size: 0.9375rem; color: var(--text); }
+  .faq-arrow {
+    flex-shrink: 0; color: var(--text-soft);
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+  }
+  .faq-item.open .faq-arrow { transform: rotate(180deg); }
+  .faq-answer {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.45s cubic-bezier(0.16,1,0.3,1);
+  }
+  .faq-item.open .faq-answer { max-height: 2000px; }
+  .faq-answer-inner {
+    padding: 0 20px 20px 64px; font-size: 0.9375rem;
+    line-height: 1.75; color: var(--text);
+  }
+  .faq-answer-inner > p { margin-bottom: var(--space-3); }
+  .faq-answer-inner code {
+    background: var(--code-bg); padding: 2px 7px; border-radius: 4px;
+    font-size: 0.875em; color: var(--code-fg);
+    font-family: "SF Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+  }
+  .faq-answer-inner pre {
+    background: var(--pre-bg); color: var(--pre-fg); padding: 14px 18px;
+    border-radius: var(--radius-sm); font-size: 0.8125rem; line-height: 1.6;
+    overflow-x: auto; margin-bottom: var(--space-3);
+    font-family: "SF Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+  }
+  .faq-answer-inner pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+  /* ===== Table ===== */
+  .info-table {
+    width: 100%; border-collapse: collapse;
+    margin: var(--space-3) 0 var(--space-4); font-size: 0.875rem;
+  }
+  .info-table th {
+    text-align: left; padding: 10px 14px; background: var(--bg);
+    font-weight: 700; font-size: 0.75rem; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+  }
+  .info-table td {
+    padding: 12px 14px; border-bottom: 1px solid var(--border-soft);
+    color: var(--text); line-height: 1.6;
+  }
+  .info-table tr:last-child td { border-bottom: none; }
+
+  /* ===== Checklist ===== */
+  .checklist {
+    list-style: none; margin: var(--space-4) 0 var(--space-8);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: var(--space-2) 0;
+    box-shadow: var(--shadow-card);
+  }
+  .checklist li {
+    display: flex; align-items: center; gap: 14px;
+    padding: 11px 20px; cursor: pointer; font-size: 0.9375rem;
+    border-bottom: 1px solid var(--border-soft); transition: background 0.15s ease;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li:hover { background: #faf9f6; }
+  .checklist li.done { color: var(--text-muted); background: #fafaf7; }
+  .checklist li.done .check-label { text-decoration: line-through; text-decoration-thickness: 1px; text-decoration-color: var(--text-soft); }
+  .check-box {
+    flex-shrink: 0; width: 22px; height: 22px;
+    border: 2px solid var(--border); border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.18s ease;
+  }
+  .checklist li:not(.done):hover .check-box { border-color: var(--accent); }
+  .checklist li.done .check-box {
+    background: var(--accent); border-color: var(--accent);
+  }
+  .checklist li.done .check-box::after {
+    content: ''; width: 6px; height: 10px;
+    border: solid var(--on-accent); border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translateY(-1px);
+  }
+  .progress-bar-wrap {
+    height: 4px; background: var(--border); border-radius: 2px;
+    margin: var(--space-2) 0 var(--space-5); overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; background: var(--accent); border-radius: 2px;
+    transition: width 0.4s cubic-bezier(0.16,1,0.3,1); width: 0%;
+  }
+
+  /* ===== CTA Box ===== */
+  .cta-box {
+    background: var(--accent-light); border: 1px solid var(--tip-border);
+    border-radius: var(--radius-md); padding: var(--space-6);
+    text-align: center; margin-top: var(--space-12);
+  }
+  .cta-box p { font-size: 0.9375rem; color: var(--tip-text); max-width: 56ch; margin-inline: auto; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: var(--space-6) var(--space-4) var(--space-10); }
+    h1 { font-size: clamp(1.375rem, 6vw, 1.75rem); }
+    h2 { font-size: 1.125rem; margin-top: var(--space-10); }
+    .step-body { padding-left: 14px; padding-right: 14px; }
+    .faq-answer-inner { padding: 0 14px 16px 20px; }
+    .concept-card { padding: var(--space-4); }
+    .checklist li { padding: 10px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<nav class="sidebar" aria-label="教程目录">
+  <div class="sidebar-logo">火山方舟</div>
+  <div class="sidebar-subtitle">Managed Agents<br>新手入门互动教程</div>
+  <ul class="sidebar-nav">
+    <li class="sidebar-section">入门概念</li>
+    <li><a href="#concept-agent">Agent — 助手的人设</a></li>
+    <li><a href="#concept-env">Environment — 云端办公室</a></li>
+    <li><a href="#concept-session">Session — 一次具体任务</a></li>
+    <li><a href="#concept-event">Event — 聊天记录</a></li>
+    <li><a href="#concept-tools">Tools / Skills / MCP</a></li>
+
+    <li class="sidebar-section">基础操作</li>
+    <li><a href="#step0">第0步：开账号拿钥匙</a></li>
+    <li><a href="#step1">第1步：创建 Agent</a></li>
+    <li><a href="#step2">第2步：创建 Environment</a></li>
+    <li><a href="#step3">第3步：创建 Session</a></li>
+    <li><a href="#step4">第4步：发消息看反馈</a></li>
+
+    <li class="sidebar-section">常见问题</li>
+    <li><a href="#faq-section">10 个新手常见坑</a></li>
+
+    <li class="sidebar-section">附加</li>
+    <li><a href="#checklist-section">快速自查清单</a></li>
+  </ul>
+  <div class="sidebar-footer">基于火山方舟 Managed Agents 官方文档改写</div>
+</nav>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main" id="main-content">
+
+  <!-- Header -->
+  <h1>火山方舟 Managed Agents</h1>
+  <p class="subhead">
+    不用搭服务器、不用写复杂代码，像发微信一样给云端数字助手派任务。<br>
+    这份教程用大白话带你从零开始，搞懂概念 → 跑通流程 → 避开常见坑。
+  </p>
+
+  <!-- ===================== -->
+  <!--  一、入门概念        -->
+  <!-- ===================== -->
+  <h2 id="concept-agent">一、入门概念：先搞懂这 5 个词</h2>
+  <p class="section-desc">下面的概念是使用 Managed Agents 的基石，花 5 分钟看一遍，后面操作就顺了。</p>
+
+  <!-- 1. Agent -->
+  <div class="concept-card" id="concept-agent">
+    <h3><span class="icon">🧩</span> Agent（智能体）—— 你给助手定的人设</h3>
+    <p>把 <strong>Agent</strong> 理解为一份"招聘启事 + 员工手册"。它规定了：助手叫什么、性格和能力范围是什么（系统提示词）、能调用哪些工具（查网页、读写文件、运行代码）、有没有特殊技能（Skills）或外部系统接口（MCP）。</p>
+    <div class="highlight highlight-tip">
+      <span class="highlight-label">重点</span> Agent 本身不干活，它只是一份"模板"。你可以把同一个 Agent 用在很多个任务里。
+    </div>
+    <div class="highlight highlight-warn">
+      <span class="highlight-label">避坑</span> 不要把一次性任务写进 Agent 的系统提示词。系统提示词只写长期稳定的规则，具体任务在 Session 里发。
+    </div>
+  </div>
+
+  <!-- 2. Environment -->
+  <div class="concept-card" id="concept-env">
+    <h3><span class="icon">🏢</span> Environment（环境）—— 助手干活的办公室</h3>
+    <p>Agent 要工作，总得有个办公桌、电脑和软件吧？<strong>Environment</strong> 就是给 Agent 准备的云端办公室。你可以指定：预装哪些软件（Python、Node.js等）、能不能连外网、以及一些常用配置。</p>
+    <div class="highlight highlight-tip">
+      <span class="highlight-label">重点</span> 同一个 Environment 可以被很多 Session 共用，但每个 Session 都有自己独立的"文件抽屉"，彼此不串门。
+    </div>
+    <div class="highlight highlight-warn">
+      <span class="highlight-label">避坑</span> Environment 的名字在同一个项目里必须唯一，重复会报错。建议用有意义的命名，比如"数据分析环境-生产"。
+    </div>
+  </div>
+
+  <!-- 3. Session -->
+  <div class="concept-card" id="concept-session">
+    <h3><span class="icon">📋</span> Session（会话）—— 一次具体的任务</h3>
+    <p>如果说 Agent 是员工手册，Environment 是办公室，那 <strong>Session</strong> 就是一次具体的"工作项目"。创建 Session 就是告诉平台："请让这位员工（Agent），在这个办公室（Environment）里，帮我完成这个任务。"</p>
+    <div class="highlight highlight-tip">
+      <span class="highlight-label">重点</span> Session 创建后不会自动开始工作，你必须主动发第一条消息，它才会从"待机"变成"运行中"。
+    </div>
+    <div class="highlight highlight-warn">
+      <span class="highlight-label">避坑</span> 一个 Session 长时间不用（默认30天），其沙箱会被清理，但聊天记录和事件历史会永久保留。
+    </div>
+  </div>
+
+  <!-- 4. Event -->
+  <div class="concept-card" id="concept-event">
+    <h3><span class="icon">💬</span> Event（事件）—— 你们之间的聊天记录</h3>
+    <p>你和 Agent 之间所有的互动，本质上都是在交换 <strong>Event</strong>（事件）。包括你发消息、Agent回复、它调用工具、状态变化、错误提示等，都按时间顺序保存在服务端，像聊天记录一样随时回看。</p>
+    <div class="highlight highlight-tip">
+      <span class="highlight-label">重点</span> 所有事件自动保存，你不需要自己维护对话历史。
+    </div>
+    <div class="highlight highlight-warn">
+      <span class="highlight-label">避坑</span> 绝大多数情况下，一次请求只能发一个事件。只有在发 user.message 时可以紧跟一个 system.message 作为临时补充，且必须放最后。
+    </div>
+  </div>
+
+  <!-- 5. Tools / Skills / MCP -->
+  <div class="concept-card" id="concept-tools">
+    <h3><span class="icon">🔧</span> Tools / Skills / MCP —— 助手的三板斧</h3>
+    <p>这三个词都是给 Agent"加能力"的，但用法不同：</p>
+    <table class="info-table">
+      <thead>
+        <tr><th>能力</th><th>大白话解释</th><th>什么时候用</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Tools</strong></td><td>系统自带的工具箱，比如读写文件、运行命令、联网搜索</td><td>只要让 Agent 在云端"动手"干活，基本都要开</td></tr>
+        <tr><td><strong>Skills</strong></td><td>可复用的技能包，封装了某个领域的知识和流程</td><td>有固定流程、团队规范、内部手册时优先用</td></tr>
+        <tr><td><strong>MCP</strong></td><td>连接外部系统的接口，比如 GitHub、Slack、Notion</td><td>需要操作已有外部系统时用</td></tr>
+      </tbody>
+    </table>
+    <div class="highlight highlight-tip">
+      <span class="highlight-label">重点</span> Tools 是"手"，Skills 是"脑中的知识库"，MCP 是"通往外面世界的门"。
+    </div>
+    <div class="highlight highlight-warn">
+      <span class="highlight-label">避坑</span> MCP 涉及外部系统权限，默认需要人工确认才能执行。不要盲目改成自动放行。
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!--  二、基础操作        -->
+  <!-- ===================== -->
+  <h2>二、基础操作：四步跑通你的第一个 Agent</h2>
+  <p class="section-desc">下面按照实际操作的顺序，一步步带你走完。每步都可以点击展开查看详情。</p>
+
+  <!-- Step 0 -->
+  <div class="step-card" id="step0">
+    <div class="step-header" onclick="toggleStep(this)" role="button" tabindex="0" aria-expanded="false">
+      <div class="step-number">0</div>
+      <div class="step-title-area">
+        <div class="step-title">开账号、拿钥匙</div>
+        <div class="step-subtitle">注册登录 → 创建 API Key → 开通服务</div>
+      </div>
+      <div class="step-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+    </div>
+    <div class="step-body">
+      <p>正式动手前，你需要完成三件准备工作：</p>
+      <p>1. <strong>注册/登录火山方舟控制台</strong>，找到 Managed Agents 模块；</p>
+      <p>2. <strong>创建 API Key</strong>：这相当于调用服务的"密码"，后续代码里会用到；</p>
+      <p>3. <strong>开通 Managed Agents 服务和模型服务</strong>：就像买手机要先开套餐一样。</p>
+      <div class="highlight highlight-tip">
+        <span class="highlight-label">重点</span> API Key 是敏感信息，不要直接写在代码里。建议配置成环境变量 <code>ARK_API_KEY</code>。
+      </div>
+      <div class="highlight highlight-warn">
+        <span class="highlight-label">避坑</span> API Key 一旦泄露，别人可能用你的额度跑任务，一定要保管好。Windows 用 <code>setx</code>，Mac/Linux 用 <code>export</code> 设置环境变量。
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="step-card" id="step1">
+    <div class="step-header" onclick="toggleStep(this)" role="button" tabindex="0" aria-expanded="false">
+      <div class="step-number">1</div>
+      <div class="step-title-area">
+        <div class="step-title">创建 Agent（给助手写招聘启事）</div>
+        <div class="step-subtitle">控制台 → Managed Agents → Agents → 创建</div>
+      </div>
+      <div class="step-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+    </div>
+    <div class="step-body">
+      <p>操作路径：进入控制台 → Managed Agents → Agents → 创建 Agent。</p>
+      <p>需要填写的内容：</p>
+      <p>• <strong>名称</strong>：中英文+数字，1~64 个字符</p>
+      <p>• <strong>模型</strong>：选择大模型作为"大脑"，如 <code>doubao-seed-2-1-pro-260628</code></p>
+      <p>• <strong>系统提示词</strong>：用自然语言写清楚它是谁、怎么说话、遵守什么规则</p>
+      <p>• <strong>Tools</strong>：勾选要给的工具，新手建议先开 <code>agent_toolset_20260701</code></p>
+      <p>• <strong>Skills / MCP / Multi Agent</strong>：新手可先跳过</p>
+      <p>保存后系统返回一个 <code>agent_id</code>，复制下来备用。</p>
+      <div class="highlight highlight-tip">
+        <span class="highlight-label">重点</span> 系统提示词写得好不好，直接决定 Agent 的表现。建议用"角色 + 任务边界 + 输出风格"三段式写法。
+        <br><br><strong>示例：</strong>"你是一位耐心的数据分析助手。你的任务是根据用户上传的销售数据，找出异常点并给出改进建议。输出时请用中文，分点说明，避免使用专业术语。"
+      </div>
+      <div class="highlight highlight-warn">
+        <span class="highlight-label">避坑</span> 不要在系统提示词里写太长的操作手册（会挤占上下文空间）。修改 Agent 配置时必须带上当前版本号，否则更新失败。skills 字段是新数组整体覆盖旧数组，不是追加。
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step-card" id="step2">
+    <div class="step-header" onclick="toggleStep(this)" role="button" tabindex="0" aria-expanded="false">
+      <div class="step-number">2</div>
+      <div class="step-title-area">
+        <div class="step-title">创建 Environment（给助手配办公室）</div>
+        <div class="step-subtitle">控制台 → Managed Agents → Environments → 创建</div>
+      </div>
+      <div class="step-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+    </div>
+    <div class="step-body">
+      <p>操作路径：控制台 → Managed Agents → Environments → 创建 Environment。</p>
+      <p>• <strong>类型</strong>：目前只支持"云托管"</p>
+      <p>• <strong>预装包</strong>：如需要 Python 的 pandas、numpy 等，就在这里加</p>
+      <p>• <strong>环境变量</strong>：比如设置时区 <code>TZ=Asia/Shanghai</code></p>
+      <p>• <strong>网络</strong>：一般选允许出站网络访问</p>
+      <p>保存后系统返回 <code>environment_id</code>，复制下来备用。</p>
+      <div class="highlight highlight-tip">
+        <span class="highlight-label">重点</span> 预装包在沙箱启动时自动安装，同一 Environment 的多个 Session 会缓存这些包，不用重复下载。
+      </div>
+      <div class="highlight highlight-warn">
+        <span class="highlight-label">避坑</span> Environment 名字也要唯一。依赖版本建议锁定（如 <code>pandas==2.2.0</code>），避免日后自动升级到不兼容版本。需要访问特定网站的话，在网络设置里放行对应域名。
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step-card" id="step3">
+    <div class="step-header" onclick="toggleStep(this)" role="button" tabindex="0" aria-expanded="false">
+      <div class="step-number">3</div>
+      <div class="step-title-area">
+        <div class="step-title">创建 Session（正式开工）</div>
+        <div class="step-subtitle">控制台 → Sessions → 创建 → 选择 Agent 和 Environment</div>
+      </div>
+      <div class="step-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+    </div>
+    <div class="step-body">
+      <p>操作路径：控制台 → Sessions → 创建 Session。</p>
+      <p>选择：刚才创建的 Agent、刚才创建的 Environment、给任务起个标题（可选）。</p>
+      <p>保存后系统返回 <code>session_id</code>，复制下来。</p>
+      <div class="highlight highlight-tip">
+        <span class="highlight-label">重点</span> 此时 Session 的状态是 <code>idle</code>（待机），Agent 还没开始干活。你需要再发一条消息，它才会进入 <code>running</code>（运行中）。
+      </div>
+      <div class="highlight highlight-warn">
+        <span class="highlight-label">避坑</span> 如果 Agent 需要访问外部系统（如 GitHub），创建 Session 时要挂上对应的 Vault（凭据库）。每个 Session 独立，文件和状态不会互相影响。
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step-card" id="step4">
+    <div class="step-header" onclick="toggleStep(this)" role="button" tabindex="0" aria-expanded="false">
+      <div class="step-number">4</div>
+      <div class="step-title-area">
+        <div class="step-title">发消息、看反馈、拿结果</div>
+        <div class="step-subtitle">在 Session 会话面板输入任务 → 查看事件时间轴</div>
+      </div>
+      <div class="step-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+    </div>
+    <div class="step-body">
+      <p>在 Session 详情页的会话面板里输入任务，比如：</p>
+      <pre><code>用 Python 生成前 20 个斐波那契数，并保存到 fibonacci.txt。</code></pre>
+      <p>点击发送后，Agent 会开始工作。你可以在事件时间轴（Trace）里看到它的一举一动：</p>
+      <p>它在思考 → 调用 write 工具写代码 → 调用 bash 运行代码 → 调用 read 查看结果 → 回复你结果 → 进入 idle 状态。</p>
+      <div class="highlight highlight-tip">
+        <span class="highlight-label">重点</span> 如果用代码接入，要先打开 SSE 事件流（实时推送）再发消息，顺序颠倒会漏掉事件。事件流会推送 <code>agent.message</code>、<code>agent.tool_use</code>、<code>session.status_idle</code> 等事件。
+      </div>
+      <div class="highlight highlight-warn">
+        <span class="highlight-label">避坑</span> 工具权限策略设为"每次确认"时，Agent 调用工具前会暂停等批准。运行中可随时发 <code>user.interrupt</code> 中断它。上传文件可以通过附件、文件链接或文件 ID 三种方式。
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!--  三、常见问题        -->
+  <!-- ===================== -->
+  <h2 id="faq-section">三、常见问题：新手最容易踩的 10 个坑</h2>
+  <p class="section-desc">点击问题展开答案，每个都附带了重点和避坑提示。</p>
+
+  <!-- Q1 -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+      <span class="faq-qnum">Q1</span>
+      <span class="faq-qtext">为什么我的 Agent 创建后不会自动开始干活？</span>
+      <span class="faq-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </button>
+    <div class="faq-answer">
+      <div class="faq-answer-inner">
+        <p>创建 Session 只是"搭好舞台"，发消息才是"按开始键"。这是故意设计成这样的，方便你先检查环境、注入凭据，再正式启动任务。</p>
+        <div class="highlight highlight-tip"><span class="highlight-label">重点</span> 创建 Session → 发 <code>user.message</code> → Agent 开始运行，这是固定流程。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+      <span class="faq-qnum">Q2</span>
+      <span class="faq-qtext">API Key 应该放哪里？</span>
+      <span class="faq-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </button>
+    <div class="faq-answer">
+      <div class="faq-answer-inner">
+        <p>绝对不要直接写在代码里。推荐放在环境变量里：</p>
+        <p>• <strong>Mac/Linux：</strong><pre><code>export ARK_API_KEY="your_api_key_here"</code></pre></p>
+        <p>• <strong>Windows CMD：</strong><pre><code>setx ARK_API_KEY "your_api_key_here"</code></pre></p>
+        <p>• <strong>Windows PowerShell：</strong><pre><code>$env:ARK_API_KEY = "your_api_key_here"</code></pre></p>
+        <div class="highlight highlight-warn"><span class="highlight-label">避坑</span> <code>setx</code> 设置的环境变量需要重新打开终端窗口才生效。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+      <span class="faq-qnum">Q3</span>
+      <span class="faq-qtext">Agent 和 Session 是什么关系？</span>
+      <span class="faq-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </button>
+    <div class="faq-answer">
+      <div class="faq-answer-inner">
+        <p><strong>Agent 是"员工手册"，Session 是"一次实际工作"。</strong></p>
+        <p>• 同一本手册可以招很多个项目组（多个 Session）</p>
+        <p>• 每个项目组有自己的聊天记录和文件，互不干扰</p>
+        <p>• 修改手册后，新项目组按新版执行，老项目组不受影响</p>
+        <div class="highlight highlight-tip"><span class="highlight-label">重点</span> 想换 Agent 能力，先改 Agent 配置，再新建 Session 测试。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+      <span class="faq-qnum">Q4</span>
+      <span class="faq-qtext">Environment 和 Session 又是什么关系？</span>
+      <span class="faq-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </button>
+    <div class="faq-answer">
+      <div class="faq-answer-inner">
+        <p><strong>Environment 是"办公室模板"，Session 是"实际使用的一间办公室"。</strong></p>
+        <p>• 同一间办公室模板可以复制出很多间独立办公室</p>
+        <p>• 每间办公室里的文件和状态彼此隔离</p>
+        <p>• 同一 Environment 的多个 Session 会共享预装包的缓存，启动更快</p>
+        <div class="highlight highlight-tip"><span class="highlight-label">重点</span> Environment 不保存任何 Session 的文件，它只是配置模板。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+      <span class="faq-qnum">Q5</span>
+      <span class="faq-qtext">我想让 Agent 读取上传的文件，怎么做？</span>
+      <span class="faq-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </button>
+    <div class="faq-answer">
+      <div class="faq-answer-inner">
+        <p>两种常用方式：</p>
+        <p>1. <strong>通过 Files API 上传</strong>：本地文件传到平台，拿到 <code>file_id</code>，在创建 Session 或发消息时引用它。</p>
+        <p>2. <strong>通过 TOS 对象存储挂载</strong>：文件放在火山对象存储里，在 Session 中按目录挂载。</p>
+        <p>上传后文件以只读形式挂载到沙箱的 <code>/mnt/session/uploads/</code> 目录。</p>
+        <div class="highlight highlight-warn">
+          <span class="highlight-label">避坑</span> 单个 Session 最多挂载 100 个文件。挂载的文件是只读副本，Agent 不能直接修改原文件。上传 Files API 时要设置 <code>purpose=agent</code>。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+      <span class="faq-qnum">Q6</span>
+      <span class="faq-qtext">什么是 Vaults？什么时候要用？</span>
+      <span class="faq-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </button>
+    <div class="faq-answer">
+      <div class="faq-answer-inner">
+        <p><strong>Vaults 是"凭据保管库"。</strong>当 Agent 需访问外部系统（GitHub、Slack、Notion 等）时，把密钥存进 Vaults，创建 Session 时挂上去。这样密钥不会暴露给沙箱内的进程，更安全；同一 Agent 可代表不同用户操作不同账号。</p>
+        <div class="highlight highlight-tip"><span class="highlight-label">重点</span> Vaults 在 Session 级别使用，不在 Agent 级别使用。</div>
+        <div class="highlight highlight-warn"><span class="highlight-label">避坑</span> 不要把用户 token 直接写进 Agent 定义里。环境变量类型的凭据只适用于"把密钥原样塞进请求头"的场景。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+      <span class="faq-qnum">Q7</span>
+      <span class="faq-qtext">工具权限策略里的 always_allow 和 always_ask 是什么意思？</span>
+      <span class="faq-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </button>
+    <div class="faq-answer">
+      <div class="faq-answer-inner">
+        <p>控制 Agent 调用工具前是否要先问你：</p>
+        <p>• <strong>always_allow</strong>：直接执行，不需要确认（适合低风险、只读工具）</p>
+        <p>• <strong>always_ask</strong>：暂停，弹出确认请求，你点允许后才继续（适合高风险操作）</p>
+        <p>默认内置工具集是 <code>always_allow</code>，MCP 工具集是 <code>always_ask</code>。</p>
+        <div class="highlight highlight-warn"><span class="highlight-label">避坑</span> 即使对某个 MCP Server 开了 always_allow，以后新增的工具也会自动放行，务必确认可信。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+      <span class="faq-qnum">Q8</span>
+      <span class="faq-qtext">什么是 Skills？我自己写的技能包怎么上传？</span>
+      <span class="faq-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </button>
+    <div class="faq-answer">
+      <div class="faq-answer-inner">
+        <p><strong>Skills 是"可复用的技能包"。</strong>比如团队有固定的会议纪要模板、代码规范、数据分析流程，都可以打包成 Skill 让 Agent 直接调用。</p>
+        <p>上传方式：逐个文件上传（Multipart）或上传 Zip 压缩包。Skill 包里必须包含 <code>SKILL.md</code> 说明书。</p>
+        <div class="highlight highlight-warn">
+          <span class="highlight-label">避坑</span> Zip 包不超过 50MB，单个版本最多 500 个文件。单个 Agent 最多挂载 20 个 Skills。更新 skills 字段时新数组整体覆盖旧数组，注意保留需要的 Skill。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+      <span class="faq-qnum">Q9</span>
+      <span class="faq-qtext">Multi Agent 是什么？新手需要学吗？</span>
+      <span class="faq-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </button>
+    <div class="faq-answer">
+      <div class="faq-answer-inner">
+        <p><strong>Multi Agent 就是"让多个 Agent 组队干活"。</strong>比如一个总负责人 Agent 接到任务后，把子任务分别派给"代码审查员"、"测试工程师"、"文档工程师"，最后自己汇总结果。</p>
+        <div class="highlight highlight-tip"><span class="highlight-label">重点</span> 新手入门阶段不需要用 Multi Agent。先把单个 Agent 玩熟，再考虑多 Agent 协作。</div>
+        <div class="highlight highlight-warn"><span class="highlight-label">避坑</span> 目前只支持一层委派（协调器→子智能体，子智能体不能再继续往下派）。配置了 Multi Agent 的 Agent 不能再被其他 Agent 当作子智能体。每个子线程独立计费，注意控制成本。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+      <span class="faq-qnum">Q10</span>
+      <span class="faq-qtext">Session 出错了怎么办？</span>
+      <span class="faq-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </button>
+    <div class="faq-answer">
+      <div class="faq-answer-inner">
+        <p>先看事件流里的错误事件，常见情况：</p>
+        <table class="info-table">
+          <thead><tr><th>现象</th><th>可能原因</th><th>怎么办</th></tr></thead>
+          <tbody>
+            <tr><td>状态变成 terminated</td><td>不可恢复的错误</td><td>查看 session.error 事件内容</td></tr>
+            <tr><td>模型返回失败</td><td>模型限流或暂时不可用</td><td>等一会重试，或换模型</td></tr>
+            <tr><td>MCP 连接失败</td><td>凭据错、网络不通、Server挂了</td><td>检查 Vault 配置和网络白名单</td></tr>
+            <tr><td>工具调用失败</td><td>命令写错、文件不存在、权限不足</td><td>看工具结果里的错误信息</td></tr>
+            <tr><td>回复质量差</td><td>系统提示词太模糊</td><td>优化系统提示词，增加示例</td></tr>
+          </tbody>
+        </table>
+        <div class="highlight highlight-warn"><span class="highlight-label">避坑</span> Session 在 running 状态时不能直接删除，要先发中断事件让它回到 idle。删除 Session 会永久清空沙箱和事件记录，操作不可逆。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!--  附：快速自查清单    -->
+  <!-- ===================== -->
+  <h2 id="checklist-section">附：快速自查清单</h2>
+  <p class="section-desc">在开始你的第一个任务前，逐项核对。点击即可勾选。</p>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-bar" style="width: 0%;"></div>
+  </div>
+
+  <ul class="checklist" id="checklist">
+    <li onclick="toggleCheck(this)" tabindex="0" role="checkbox" aria-checked="false">
+      <span class="check-box"></span>
+      <span class="check-label">已开通 Managed Agents 服务</span>
+    </li>
+    <li onclick="toggleCheck(this)" tabindex="0" role="checkbox" aria-checked="false">
+      <span class="check-box"></span>
+      <span class="check-label">已开通模型服务</span>
+    </li>
+    <li onclick="toggleCheck(this)" tabindex="0" role="checkbox" aria-checked="false">
+      <span class="check-box"></span>
+      <span class="check-label">已创建 API Key 并配置为环境变量</span>
+    </li>
+    <li onclick="toggleCheck(this)" tabindex="0" role="checkbox" aria-checked="false">
+      <span class="check-box"></span>
+      <span class="check-label">已创建 Agent，并复制了 agent_id</span>
+    </li>
+    <li onclick="toggleCheck(this)" tabindex="0" role="checkbox" aria-checked="false">
+      <span class="check-box"></span>
+      <span class="check-label">已创建 Environment，并复制了 environment_id</span>
+    </li>
+    <li onclick="toggleCheck(this)" tabindex="0" role="checkbox" aria-checked="false">
+      <span class="check-box"></span>
+      <span class="check-label">已创建 Session，并发送了第一条 user.message</span>
+    </li>
+    <li onclick="toggleCheck(this)" tabindex="0" role="checkbox" aria-checked="false">
+      <span class="check-box"></span>
+      <span class="check-label">已打开事件流查看实时反馈</span>
+    </li>
+    <li onclick="toggleCheck(this)" tabindex="0" role="checkbox" aria-checked="false">
+      <span class="check-box"></span>
+      <span class="check-label">如涉及外部系统，已创建 Vault 并在 Session 中挂载</span>
+    </li>
+  </ul>
+
+  <!-- CTA -->
+  <div class="cta-box">
+    <p>Managed Agents 的核心理念是<strong>"把通用基础设施交给平台，你只专注业务逻辑"</strong>。</p>
+    <p style="margin-top:6px; color: var(--text-muted);">刚开始不要怕试错，先在控制台里点点按钮、跑几个简单任务，流程跑通了再考虑写代码接入。祝你早日养出一个得心应手的数字助手！</p>
+  </div>
+
+</main>
+
+<!-- ===== SCRIPTS ===== -->
+<script>
+  // Step accordion toggle
+  function toggleStep(header) {
+    const card = header.parentElement;
+    const isOpen = card.classList.contains('open');
+    // Close all other steps
+    document.querySelectorAll('.step-card.open').forEach(c => c.classList.remove('open'));
+    // Toggle current
+    if (!isOpen) {
+      card.classList.add('open');
+      header.setAttribute('aria-expanded', 'true');
+    } else {
+      header.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  // FAQ accordion toggle
+  function toggleFaq(btn) {
+    const item = btn.parentElement;
+    const isOpen = item.classList.contains('open');
+    item.classList.toggle('open');
+    btn.setAttribute('aria-expanded', !isOpen);
+  }
+
+  // Checklist toggle with progress bar
+  function toggleCheck(li) {
+    li.classList.toggle('done');
+    li.setAttribute('aria-checked', li.classList.contains('done'));
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const total = document.querySelectorAll('#checklist li').length;
+    const done = document.querySelectorAll('#checklist li.done').length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progress-bar').style.width = pct + '%';
+  }
+
+  // Sidebar active highlight on scroll
+  function updateSidebarActive() {
+    const sections = document.querySelectorAll('h2[id], .concept-card[id], .step-card[id]');
+    const links = document.querySelectorAll('.sidebar-nav a');
+    let currentId = '';
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= 140) currentId = s.id;
+    });
+    links.forEach(a => {
+      const href = a.getAttribute('href');
+      if (href && href.slice(1) === currentId) {
+        a.classList.add('active');
+      } else {
+        a.classList.remove('active');
+      }
+    });
+  }
+
+  window.addEventListener('scroll', updateSidebarActive, { passive: true });
+
+  // Keyboard support for checklist
+  document.querySelectorAll('#checklist li').forEach(li => {
+    li.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCheck(this); }
+    });
+  });
+
+  // Keyboard support for step headers
+  document.querySelectorAll('.step-header').forEach(header => {
+    header.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStep(this); }
+    });
+  });
+
+  // Keyboard support for FAQ buttons
+  document.querySelectorAll('.faq-question').forEach(btn => {
+    btn.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleFaq(this); }
+    });
+  });
+</script>
+</body>
+</html>
