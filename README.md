@@ -45,13 +45,16 @@ MCP：Model Context Protocol协议介绍
 🛠️ 技术栈
 
 平台：GitHub Pages
-格式：Markdown + HTML
+格式：HTML
 内容来源：火山方舟官方文档 + 个人实践总结
 
 📁 文件结构
 
 plaintext
-
+1
+2
+3
+4
 fangzou_study/
 ├── index.html          # 教程主页
 └── README.md           # 项目说明
